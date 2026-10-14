@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiếng Anh 7: Pronunciation /f/ and /v/</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Continuous falling snow animation */
+        .snowflake {
+            position: fixed;
+            top: -10px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: fall linear infinite;
+            z-index: 1;
+        }
+        @keyframes fall {
+            0% { transform: translateY(-10px) translateX(0); }
+            100% { transform: translateY(105vh) translateX(30px); }
+        }
+
+        /* Fireworks canvas overlay */
+        #fireworks-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .card-shadow {
+            box-shadow: 0 12px 30px -5px rgba(27, 94, 32, 0.2), 0 8px 12px -6px rgba(27, 94, 32, 0.1);
+        }
+
+        @keyframes bounce-short {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-bounce-short {
+            animation: bounce-short 1s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="flex flex-col justify-between text-gray-800 relative selection:bg-emerald-200">
+
+    <!-- Canvas for Fireworks Effects -->
+    <canvas id="fireworks-canvas"></canvas>
+
+    <!-- Snowflake Animation Container -->
+    <div id="snow-container" class="fixed inset-0 overflow-hidden pointer-events-none z-0"></div>
+
+    <!-- Header Navigation -->
+    <header class="w-full bg-emerald-800 text-white py-4 px-6 shadow-xl z-10 flex flex-wrap justify-between items-center sticky top-0 backdrop-blur-md bg-opacity-95 border-b border-emerald-600">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-emerald-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner">
+                🎙️
+            </div>
+            <div>
+                <h1 class="text-xl md:text-2xl font-black tracking-tight text-white">Tiếng Anh 7: Global Success</h1>
+                <p class="text-xs text-emerald-200 font-medium hidden sm:block">Unit 2: Pronunciation — /f/ and /v/ Sounds</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3 mt-2 sm:mt-0">
+            <div id="mode-badge" class="bg-emerald-950/80 border border-emerald-500 px-3 py-1 rounded-full text-xs font-semibold text-emerald-200 shadow-sm">
+                Chế độ: Phân loại Âm
+            </div>
+            <div class="bg-amber-400 text-emerald-950 font-black px-4 py-1.5 rounded-full text-sm shadow-md flex items-center space-x-1">
+                <span>⭐ Điểm:</span>
+                <span id="score-display" class="text-lg">0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="w-full max-w-4xl mx-auto px-4 mt-6 z-10 flex justify-center space-x-2 sm:space-x-4">
+        <button id="tab-sort" onclick="switchMode('sort')" class="px-5 py-2.5 rounded-2xl font-bold text-sm sm:text-base shadow-md transition transform active:scale-95 cursor-pointer bg-emerald-600 text-white border-2 border-emerald-500">
+            🧩 Chế độ 1: Phân loại /f/ & /v/ (Từ đơn)
+        </button>
+        <button id="tab-sentence" onclick="switchMode('sentence')" class="px-5 py-2.5 rounded-2xl font-bold text-sm sm:text-base shadow-md transition transform active:scale-95 cursor-pointer bg-white text-emerald-800 border-2 border-emerald-200 hover:bg-emerald-50">
+            💬 Chế độ 2: Ngữ cảnh trong Câu (Sentence Quiz)
+        </button>
+    </div>
+
+    <!-- Main Container -->
+    <main class="flex-grow flex items-center justify-center p-4 my-2 z-10">
+        <div id="main-card" class="w-full max-w-4xl bg-white/95 backdrop-blur-md rounded-3xl card-shadow p-5 sm:p-8 transition-all duration-300 border border-emerald-100">
+
+            <!-- ================= MODE 1: WORD SORTING CHALLENGE ================= -->
+            <div id="sort-game-view" class="block">
+                <div class="text-center mb-6">
+                    <span class="text-xs font-bold uppercase tracking-widest text-emerald-600 bg-emerald-100 px-3 py-1 rounded-full">Bài tập 4 (Activity 4)</span>
+                    <h2 class="text-2xl sm:text-3xl font-black text-emerald-900 mt-2">Phân loại Từ chứa âm /f/ hoặc /v/</h2>
+                    <p class="text-sm sm:text-base text-gray-600 mt-1">
+                        Hãy bấm phát âm từ và phân loại từ đó vào cột âm <strong class="text-emerald-700">/f/</strong> hoặc <strong class="text-emerald-700">/v/</strong>!
+                    </p>
+                </div>
+
+                <!-- Word Card Queue -->
+                <div id="current-word-container" class="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-3xl p-6 mb-8 text-center shadow-inner relative">
+                    <span class="text-xs font-extrabold uppercase text-emerald-700 tracking-wider block mb-2">Bấm loa để nghe phát âm & Chọn đúng cột:</span>
+                    
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 my-2">
+                        <span id="current-word-text" class="text-3xl sm:text-4xl font-black text-gray-800 tracking-wide">
+                            loading...
+                        </span>
+                        <button onclick="speakCurrentWord()" class="bg-amber-400 hover:bg-amber-500 text-amber-950 font-bold p-3 rounded-full shadow transition transform active:scale-90 cursor-pointer flex items-center space-x-1" title="Nghe phát âm chuẩn">
+                            <span class="text-2xl">🔊</span>
+                        </button>
+                    </div>
+
+                    <div id="word-phonetic-hint" class="text-sm font-semibold text-emerald-600 italic h-6"></div>
+                </div>
+
+                <!-- Sorting Drop Zones / Buttons -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                    <!-- Column /f/ -->
+                    <div class="bg-sky-50 border-2 border-sky-300 rounded-2xl p-5 text-center flex flex-col justify-between shadow-sm hover:shadow-md transition">
+                        <div>
+                            <div class="w-12 h-12 bg-sky-500 text-white font-black text-xl rounded-2xl flex items-center justify-center mx-auto mb-2 shadow">
+                                /f/
+                            </div>
+                            <h3 class="font-bold text-sky-900 text-lg">Âm /f/</h3>
+                            <p class="text-xs text-sky-700 mt-1">Ví dụ: <em class="font-semibold">food, fit, breakfast, affect</em></p>
+                        </div>
+                        <button onclick="classifyWord('/f/')" class="mt-4 bg-sky-600 hover:bg-sky-700 text-white font-extrabold py-3 px-6 rounded-xl shadow transition transform active:scale-95 cursor-pointer">
+                            Xếp vào âm /f/ 📥
+                        </button>
+                    </div>
+
+                    <!-- Column /v/ -->
+                    <div class="bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-5 text-center flex flex-col justify-between shadow-sm hover:shadow-md transition">
+                        <div>
+                            <div class="w-12 h-12 bg-emerald-600 text-white font-black text-xl rounded-2xl flex items-center justify-center mx-auto mb-2 shadow">
+                                /v/
+                            </div>
+                            <h3 class="font-bold text-emerald-900 text-lg">Âm /v/</h3>
+                            <p class="text-xs text-emerald-700 mt-1">Ví dụ: <em class="font-semibold">activity, active, vitamin, avoid</em></p>
+                        </div>
+                        <button onclick="classifyWord('/v/')" class="mt-4 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 px-6 rounded-xl shadow transition transform active:scale-95 cursor-pointer">
+                            Xếp vào âm /v/ 📥
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Classified Items Preview Lists -->
+                <div class="grid grid-cols-2 gap-4 mb-6 text-xs sm:text-sm">
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-3">
+                        <span class="font-bold text-sky-800 block mb-1">Các từ âm /f/ đã chọn:</span>
+                        <div id="list-f" class="flex flex-wrap gap-1 min-h-[30px]">-- Chưa có từ nào --</div>
+                    </div>
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-3">
+                        <span class="font-bold text-emerald-800 block mb-1">Các từ âm /v/ đã chọn:</span>
+                        <div id="list-v" class="flex flex-wrap gap-1 min-h-[30px]">-- Chưa có từ nào --</div>
+                    </div>
+                </div>
+
+                <!-- Feedback Banner -->
+                <div id="sort-feedback" class="p-4 rounded-2xl text-center font-bold text-sm hidden transition-all mb-4"></div>
+
+                <!-- Action Controls -->
+                <div class="flex justify-center space-x-3">
+                    <button onclick="resetSortGame()" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold px-6 py-2.5 rounded-full transition shadow-sm cursor-pointer">
+                        🔄 Làm lại Chế độ 1
+                    </button>
+                </div>
+            </div>
+
+
+            <!-- ================= MODE 2: SENTENCE PHONETICS CHALLENGE ================= -->
+            <div id="sentence-game-view" class="hidden">
+                <div class="flex items-center justify-between mb-4 pb-2 border-b border-gray-100">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100 px-3 py-1 rounded-md">
+                            Bài tập 5 (Activity 5)
+                        </span>
+                        <span class="text-xs font-bold text-gray-500 ml-2">Câu hỏi <span id="sent-q-num">1</span>/5</span>
+                    </div>
+                    <button onclick="speakCurrentSentence()" class="bg-amber-400 hover:bg-amber-500 text-amber-950 font-bold px-3 py-1 rounded-xl text-xs flex items-center space-x-1 shadow cursor-pointer">
+                        <span>🔊 Nghe cả câu</span>
+                    </button>
+                </div>
+
+                <!-- Progress bar -->
+                <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6 overflow-hidden">
+                    <div id="sent-progress-bar" class="bg-emerald-600 h-2.5 rounded-full transition-all duration-300" style="width: 20%"></div>
+                </div>
+
+                <!-- Sentence Card Content -->
+                <div id="sent-card-content">
+                    <!-- Sentence Display -->
+                    <div class="bg-emerald-50/80 p-6 rounded-2xl border border-emerald-200 mb-6 text-center relative">
+                        <div id="sentence-text" class="text-xl sm:text-2xl font-black text-gray-800 leading-relaxed">
+                            Loading sentence...
+                        </div>
+                        <p id="sentence-translation" class="text-xs sm:text-sm font-semibold text-emerald-700 mt-2">
+                            Bản dịch nghĩa câu...
+                        </p>
+                    </div>
+
+                    <!-- Question Prompt -->
+                    <div class="text-center mb-4">
+                        <h3 id="sentence-prompt-text" class="font-extrabold text-emerald-950 text-base sm:text-lg">
+                            Từ gạch chân chứa âm gì?
+                        </h3>
+                    </div>
+
+                    <!-- Options -->
+                    <div id="sentence-options" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                        <!-- Dynamically populated -->
+                    </div>
+
+                    <!-- Feedback Box -->
+                    <div id="sent-feedback-box" class="hidden p-4 rounded-2xl mb-6 text-sm font-medium border"></div>
+
+                    <div class="flex justify-end">
+                        <button id="sent-next-btn" onclick="nextSentenceQuestion()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white font-black px-6 py-3 rounded-xl shadow-lg transition transform active:scale-95 cursor-pointer">
+                            Câu tiếp theo ➡️
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Result View -->
+                <div id="sent-result-view" class="hidden text-center py-8">
+                    <div class="text-6xl mb-3 animate-bounce-short">🏆</div>
+                    <h3 class="text-2xl sm:text-3xl font-black text-emerald-900 mb-2">Xuất sắc! Bạn đã hoàn thành!</h3>
+                    <p class="text-gray-600 mb-6">Bạn đã nắm chắc quy tắc phát âm <strong>/f/</strong> và <strong>/v/</strong> trong Tiếng Anh 7!</p>
+
+                    <div class="bg-emerald-50 border border-emerald-200 p-6 rounded-2xl max-w-sm mx-auto mb-6 shadow-inner">
+                        <p class="text-gray-600 font-medium text-sm">Điểm số Chế độ Trắc nghiệm Câu:</p>
+                        <p class="text-4xl font-black text-emerald-600 my-1"><span id="sent-final-score">0</span> / 5</p>
+                        <p id="sent-final-comment" class="text-xs font-bold text-emerald-800 mt-2"></p>
+                    </div>
+
+                    <button onclick="restartSentenceQuiz()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-base px-8 py-3 rounded-full shadow-lg transition transform active:scale-95 cursor-pointer">
+                        Làm lại Chế độ 2 🔄
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full text-center py-4 text-xs text-emerald-900 bg-emerald-100/80 font-semibold z-10 border-t border-emerald-200">
+        Game Tương Tác Phát Âm Tiếng Anh 7 • Global Success (Unit 2: Pronunciation /f/ & /v/) ❄️🎧
+    </footer>
+
+    <!-- JavaScript Game Logic -->
+    <script>
+        /* ================= DATA SOURCES (ACCURATE TO TEXTBOOK) ================= */
+        // Activity 4 Words
+        const sortWords = [
+            { word: "activity", sound: "/v/", phonetic: "/ækˈtɪv.ə.ti/", highlight: "acti<strong class='text-emerald-700 underline'>v</strong>ity" },
+            { word: "active", sound: "/v/", phonetic: "/ˈæk.tɪv/", highlight: "acti<strong class='text-emerald-700 underline'>v</strong>e" },
+            { word: "vitamin", sound: "/v/", phonetic: "/ˈvɪt.ə.mɪn/", highlight: "<strong class='text-emerald-700 underline'>v</strong>itamin" },
+            { word: "avoid", sound: "/v/", phonetic: "/əˈvɔɪd/", highlight: "a<strong class='text-emerald-700 underline'>v</strong>oid" },
+            { word: "food", sound: "/f/", phonetic: "/fuːd/", highlight: "<strong class='text-sky-700 underline'>f</strong>ood" },
+            { word: "breakfast", sound: "/f/", phonetic: "/ˈbrek.fəst/", highlight: "break<strong class='text-sky-700 underline'>f</strong>ast" },
+            { word: "affect", sound: "/f/", phonetic: "/əˈfekt/", highlight: "a<strong class='text-sky-700 underline'>ff</strong>ect" },
+            { word: "fit", sound: "/f/", phonetic: "/fɪt/", highlight: "<strong class='text-sky-700 underline'>f</strong>it" }
+        ];
+
+        // Activity 5 Sentences
+        const sentencesData = [
+            {
+                id: 1,
+                num: 1,
+                fullText: "Coloured vegetables are good food.",
+                translation: "Rau củ nhiều màu sắc là thực phẩm tốt.",
+                targetWords: [
+                    { word: "vegetables", sound: "/v/", display: "<u class='decoration-emerald-500 font-extrabold text-emerald-800'>vegetables</u>" },
+                    { word: "food", sound: "/f/", display: "<u class='decoration-sky-500 font-extrabold text-sky-800'>food</u>" }
+                ],
+                question: "Trong câu trên: <b>vegetables</b> chứa âm ____, còn <b>food</b> chứa âm ____?",
+                options: [
+                    { label: "vegetables (/v/) - food (/f/)", correct: true },
+                    { label: "vegetables (/f/) - food (/v/)", correct: false },
+                    { label: "Cả hai từ đều chứa âm /f/", correct: false },
+                    { label: "Cả hai từ đều chứa âm /v/", correct: false }
+                ],
+                explain: "<b>vegetables</b> có chữ 'v' phát âm là /v/. <b>food</b> có chữ 'f' phát âm là /f/."
+            },
+            {
+                id: 2,
+                num: 2,
+                fullText: "My favourite outdoor activity is cycling.",
+                translation: "Hoạt động ngoài trời yêu thích của tớ là đi xe đạp.",
+                targetWords: [
+                    { word: "favourite", sound: "/f/", display: "<u class='decoration-sky-500 font-extrabold text-sky-800'>favourite</u>" },
+                    { word: "activity", sound: "/v/", display: "<u class='decoration-emerald-500 font-extrabold text-emerald-800'>activity</u>" }
+                ],
+                question: "Từ <b>favourite</b> chứa âm nào và từ <b>activity</b> chứa âm nào?",
+                options: [
+                    { label: "favourite (/f/) và activity (/v/)", correct: true },
+                    { label: "favourite (/v/) và activity (/f/)", correct: false },
+                    { label: "Cả hai từ đều chứa âm /f/", correct: false },
+                    { label: "Cả hai từ đều chứa âm /v/", correct: false }
+                ],
+                explain: "<b>favourite</b> có chữ 'f' phát âm /f/. <b>activity</b> có chữ 'v' phát âm /v/."
+            },
+            {
+                id: 3,
+                num: 3,
+                fullText: "We need vitamin A for our eyes.",
+                translation: "Chúng ta cần vitamin A cho đôi mắt.",
+                targetWords: [
+                    { word: "vitamin", sound: "/v/", display: "<u class='decoration-emerald-500 font-extrabold text-emerald-800'>vitamin</u>" },
+                    { word: "for", sound: "/f/", display: "<u class='decoration-sky-500 font-extrabold text-sky-800'>for</u>" }
+                ],
+                question: "Phát âm của chữ cái được gạch chân trong <b>vitamin</b> và <b>for</b> lần lượt là:",
+                options: [
+                    { label: "vitamin (/v/) và for (/f/)", correct: true },
+                    { label: "vitamin (/f/) và for (/v/)", correct: false },
+                    { label: "Cả hai đều phát âm là /v/", correct: false },
+                    { label: "Cả hai đều phát âm là /f/", correct: false }
+                ],
+                explain: "<b>vitamin</b> bắt đầu bằng âm /v/. Từ <b>for</b> bắt đầu bằng âm /f/."
+            },
+            {
+                id: 4,
+                num: 4,
+                fullText: "Being active helps keep you fit.",
+                translation: "Năng động giúp bạn giữ vóc dáng cân đối.",
+                targetWords: [
+                    { word: "active", sound: "/v/", display: "<u class='decoration-emerald-500 font-extrabold text-emerald-800'>active</u>" },
+                    { word: "fit", sound: "/f/", display: "<u class='decoration-sky-500 font-extrabold text-sky-800'>fit</u>" }
+                ],
+                question: "Chọn cặp phát âm chính xác cho <b>active</b> và <b>fit</b>:",
+                options: [
+                    { label: "active (/v/) - fit (/f/)", correct: true },
+                    { label: "active (/f/) - fit (/v/)", correct: false },
+                    { label: "active (/f/) - fit (/f/)", correct: false },
+                    { label: "active (/v/) - fit (/v/)", correct: false }
+                ],
+                explain: "Chữ 'v' trong <b>active</b> phát âm là /v/. Chữ 'f' trong <b>fit</b> phát âm là /f/."
+            },
+            {
+                id: 5,
+                num: 5,
+                fullText: "Jack never eats fish.",
+                translation: "Jack không bao giờ ăn cá.",
+                targetWords: [
+                    { word: "never", sound: "/v/", display: "<u class='decoration-emerald-500 font-extrabold text-emerald-800'>never</u>" },
+                    { word: "fish", sound: "/f/", display: "<u class='decoration-sky-500 font-extrabold text-sky-800'>fish</u>" }
+                ],
+                question: "Âm /v/ và /f/ xuất hiện ở đâu trong câu này?",
+                options: [
+                    { label: "never chứa âm /v/, fish chứa âm /f/", correct: true },
+                    { label: "never chứa âm /f/, fish chứa âm /v/", correct: false },
+                    { label: "Cả hai từ đều chứa âm /f/", correct: false },
+                    { label: "Cả hai từ đều chứa âm /v/", correct: false }
+                ],
+                explain: "<b>never</b> có chữ 'v' -> âm /v/. <b>fish</b> có chữ 'f' -> âm /f/."
+            }
+        ];
+
+        /* ================= GAME STATE VARIABLES ================= */
+        let currentSortIndex = 0;
+        let shuffledSortWords = [];
+        let score = 0;
+        let listF = [];
+        let listV = [];
+
+        let currentSentIndex = 0;
+        let sentScore = 0;
+        let sentAnswered = false;
+
+        /* ================= AUDIO SYNTHESIS & SOUND EFFECTS ================= */
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // Web Audio API Sound generator
+        function playSound(type) {
+            try {
+                initAudio();
+                if (!audioCtx) return;
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                const now = audioCtx.currentTime;
+
+                if (type === 'correct') {
+                    // Triumphant Victory Fanfare
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.12); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.24); // G5
+                    osc.frequency.setValueAtTime(1046.50, now + 0.36); // C6
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+                    osc.start(now);
+                    osc.stop(now + 0.7);
+                } else if (type === 'incorrect') {
+                    // Encouraging gentle melodic tone (not harsh)
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(329.63, now); // E4
+                    osc.frequency.setValueAtTime(293.66, now + 0.2); // D4
+                    osc.frequency.setValueAtTime(349.23, now + 0.4); // F4
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+                    osc.start(now);
+                    osc.stop(now + 0.6);
+                } else if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440, now);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                }
+            } catch (e) {
+                console.log("Audio play error", e);
+            }
+        }
+
+        // Speech Synthesis for Native English Pronunciation
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.85; // slightly slower for students
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function speakCurrentWord() {
+            playSound('click');
+            if (shuffledSortWords[currentSortIndex]) {
+                speakText(shuffledSortWords[currentSortIndex].word);
+            }
+        }
+
+        function speakCurrentSentence() {
+            playSound('click');
+            if (sentencesData[currentSentIndex]) {
+                speakText(sentencesData[currentSentIndex].fullText);
+            }
+        }
+
+        /* ================= CANVAS FIREWORKS EFFECT ================= */
+        const canvas = document.getElementById('fireworks-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function createFirework(x, y) {
+            const colors = ['#22c55e', '#10b981', '#f59e0b', '#3b82f6', '#ec4899', '#8b5cf6'];
+            const particleCount = 60;
+            for (let i = 0; i < particleCount; i++) {
+                const angle = (Math.PI * 2 / particleCount) * i;
+                const speed = Math.random() * 6 + 2;
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    radius: Math.random() * 3 + 2,
+                    alpha: 1,
+                    decay: Math.random() * 0.02 + 0.015
+                });
+            }
+        }
+
+        function animateFireworks() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.05; // gravity
+                p.alpha -= p.decay;
+
+                if (p.alpha <= 0) {
+                    particles.splice(i, 1);
+                } else {
+                    ctx.save();
+                    ctx.globalAlpha = p.alpha;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+            requestAnimationFrame(animateFireworks);
+        }
+        animateFireworks();
+
+        function triggerVictoryFireworks() {
+            createFirework(canvas.width * 0.3, canvas.height * 0.4);
+            setTimeout(() => createFirework(canvas.width * 0.7, canvas.height * 0.3), 150);
+            setTimeout(() => createFirework(canvas.width * 0.5, canvas.height * 0.5), 300);
+        }
+
+        /* ================= SNOW ANIMATION ================= */
+        function initSnow() {
+            const container = document.getElementById('snow-container');
+            const totalSnowflakes = 25;
+            for (let i = 0; i < totalSnowflakes; i++) {
+                const flake = document.createElement('div');
+                flake.className = 'snowflake';
+                const size = Math.random() * 6 + 4 + 'px';
+                flake.style.width = size;
+                flake.style.height = size;
+                flake.style.left = Math.random() * 100 + 'vw';
+                flake.style.opacity = Math.random() * 0.7 + 0.3;
+                flake.style.animationDuration = Math.random() * 6 + 5 + 's';
+                flake.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(flake);
+            }
+        }
+
+        /* ================= MODE SWITCHING ================= */
+        function switchMode(mode) {
+            initAudio();
+            const sortView = document.getElementById('sort-game-view');
+            const sentView = document.getElementById('sentence-game-view');
+            const tabSort = document.getElementById('tab-sort');
+            const tabSent = document.getElementById('tab-sentence');
+            const modeBadge = document.getElementById('mode-badge');
+
+            if (mode === 'sort') {
+                sortView.classList.remove('hidden');
+                sentView.classList.add('hidden');
+                tabSort.className = "px-5 py-2.5 rounded-2xl font-bold text-sm sm:text-base shadow-md transition transform active:scale-95 cursor-pointer bg-emerald-600 text-white border-2 border-emerald-500";
+                tabSent.className = "px-5 py-2.5 rounded-2xl font-bold text-sm sm:text-base shadow-md transition transform active:scale-95 cursor-pointer bg-white text-emerald-800 border-2 border-emerald-200 hover:bg-emerald-50";
+                modeBadge.innerText = "Chế độ: Phân loại Âm";
+            } else {
+                sortView.classList.add('hidden');
+                sentView.classList.remove('hidden');
+                tabSent.className = "px-5 py-2.5 rounded-2xl font-bold text-sm sm:text-base shadow-md transition transform active:scale-95 cursor-pointer bg-emerald-600 text-white border-2 border-emerald-500";
+                tabSort.className = "px-5 py-2.5 rounded-2xl font-bold text-sm sm:text-base shadow-md transition transform active:scale-95 cursor-pointer bg-white text-emerald-800 border-2 border-emerald-200 hover:bg-emerald-50";
+                modeBadge.innerText = "Chế độ: Ngữ cảnh Câu";
+                
+                if (currentSentIndex === 0 && !sentAnswered) {
+                    loadSentenceQuestion();
+                }
+            }
+        }
+
+        /* ================= MODE 1 LOGIC (SORTING) ================= */
+        function initSortGame() {
+            shuffledSortWords = [...sortWords].sort(() => 0.5 - Math.random());
+            currentSortIndex = 0;
+            listF = [];
+            listV = [];
+            renderSortWord();
+            renderClassifiedLists();
+            document.getElementById('sort-feedback').classList.add('hidden');
+        }
+
+        function renderSortWord() {
+            if (currentSortIndex < shuffledSortWords.length) {
+                const current = shuffledSortWords[currentSortIndex];
+                document.getElementById('current-word-text').innerText = current.word;
+                document.getElementById('word-phonetic-hint').innerText = current.phonetic;
+                // Automatically play sound when word appears
+                setTimeout(() => speakText(current.word), 300);
+            } else {
+                // Completed Mode 1
+                document.getElementById('current-word-text').innerText = "🎉 ĐÃ HOÀN THÀNH!";
+                document.getElementById('word-phonetic-hint').innerText = "Bạn đã phân loại chính xác tất cả các từ!";
+                
+                const feedback = document.getElementById('sort-feedback');
+                feedback.className = "p-5 rounded-2xl text-center font-black text-base bg-emerald-600 text-white shadow-lg block animate-bounce";
+                feedback.innerHTML = "🏆 Xuất sắc! Bạn đã vượt qua Chế độ 1: Phân loại âm /f/ và /v/!";
+                
+                triggerVictoryFireworks();
+                playSound('correct');
+            }
+        }
+
+        function classifyWord(chosenSound) {
+            if (currentSortIndex >= shuffledSortWords.length) return;
+
+            const current = shuffledSortWords[currentSortIndex];
+            const feedback = document.getElementById('sort-feedback');
+
+            if (current.sound === chosenSound) {
+                playSound('correct');
+                triggerVictoryFireworks();
+                score += 15;
+                updateScoreDisplay();
+
+                if (chosenSound === '/f/') {
+                    listF.push(current.word);
+                } else {
+                    listV.push(current.word);
+                }
+
+                feedback.className = "p-3 rounded-2xl text-center font-bold text-sm bg-emerald-100 border border-emerald-300 text-emerald-900 block";
+                feedback.innerHTML = `✅ Chính xác! Từ <strong>${current.word}</strong> (${current.phonetic}) chứa âm <strong>${current.sound}</strong>.`;
+
+                currentSortIndex++;
+                renderClassifiedLists();
+                renderSortWord();
+            } else {
+                playSound('incorrect');
+                feedback.className = "p-3 rounded-2xl text-center font-bold text-sm bg-amber-100 border border-amber-300 text-amber-900 block";
+                feedback.innerHTML = `💡 Hãy lắng nghe kỹ lại nhé! Từ <strong>${current.word}</strong> (${current.phonetic}) chứa âm <strong>${current.sound}</strong> mới đúng. Hãy thử bấm chọn lại nhé!`;
+            }
+        }
+
+        function renderClassifiedLists() {
+            const listFBox = document.getElementById('list-f');
+            const listVBox = document.getElementById('list-v');
+
+            listFBox.innerHTML = listF.length === 0 
+                ? '<span class="text-gray-400 font-normal">-- Chưa có --</span>' 
+                : listF.map(w => `<span class="bg-sky-100 text-sky-800 font-bold px-2 py-0.5 rounded border border-sky-300">${w}</span>`).join('');
+
+            listVBox.innerHTML = listV.length === 0 
+                ? '<span class="text-gray-400 font-normal">-- Chưa có --</span>' 
+                : listV.map(w => `<span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded border border-emerald-300">${w}</span>`).join('');
+        }
+
+        function resetSortGame() {
+            initSortGame();
+        }
+
+        /* ================= MODE 2 LOGIC (SENTENCE QUIZ) ================= */
+        function loadSentenceQuestion() {
+            sentAnswered = false;
+            const q = sentencesData[currentSentIndex];
+
+            document.getElementById('sent-q-num').innerText = q.num;
+            
+            // Build highlighted sentence string
+            let textWithHighlights = q.fullText;
+            q.targetWords.forEach(tw => {
+                textWithHighlights = textWithHighlights.replace(tw.word, tw.display);
+            });
+
+            document.getElementById('sentence-text').innerHTML = textWithHighlights;
+            document.getElementById('sentence-translation').innerText = `Dịch nghĩa: "${q.translation}"`;
+            document.getElementById('sentence-prompt-text').innerHTML = q.question;
+
+            const percent = Math.round(((currentSentIndex + 1) / sentencesData.length) * 100);
+            document.getElementById('sent-progress-bar').style.width = `${percent}%`;
+
+            // Options
+            const optionsBox = document.getElementById('sentence-options');
+            optionsBox.innerHTML = '';
+
+            // Shuffle options slightly
+            const opts = [...q.options];
+
+            opts.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-2xl border-2 border-emerald-100 hover:border-emerald-400 bg-white hover:bg-emerald-50/50 font-bold text-gray-800 transition flex items-center justify-between cursor-pointer shadow-sm";
+                btn.innerHTML = `
+                    <span><strong class="text-emerald-700 mr-2">${String.fromCharCode(65 + idx)}.</strong> ${opt.label}</span>
+                `;
+                btn.onclick = () => selectSentenceOption(opt, btn);
+                optionsBox.appendChild(btn);
+            });
+
+            document.getElementById('sent-feedback-box').classList.add('hidden');
+            document.getElementById('sent-next-btn').classList.add('hidden');
+
+            // Auto pronounce sentence on load
+            setTimeout(() => speakText(q.fullText), 200);
+        }
+
+        function selectSentenceOption(opt, btnEl) {
+            if (sentAnswered) return;
+            sentAnswered = true;
+
+            const q = sentencesData[currentSentIndex];
+            const feedbackBox = document.getElementById('sent-feedback-box');
+
+            if (opt.correct) {
+                btnEl.className = "w-full text-left p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-100 text-emerald-950 font-black flex items-center justify-between shadow";
+                sentScore++;
+                score += 20;
+                playSound('correct');
+                triggerVictoryFireworks();
+
+                feedbackBox.className = "p-4 rounded-2xl mb-6 text-sm font-semibold border bg-emerald-50 border-emerald-300 text-emerald-900 block";
+                feedbackBox.innerHTML = `🎉 <strong>Chính xác xuất sắc!</strong> ${q.explain}`;
+            } else {
+                btnEl.className = "w-full text-left p-4 rounded-2xl border-2 border-amber-400 bg-amber-50 text-amber-950 font-black flex items-center justify-between";
+                playSound('incorrect');
+
+                feedbackBox.className = "p-4 rounded-2xl mb-6 text-sm font-semibold border bg-amber-50 border-amber-300 text-amber-900 block";
+                feedbackBox.innerHTML = `💪 <strong>Cố lên nhé!</strong> Lần sau bạn sẽ làm đúng. <br>👉 <strong>Giải thích:</strong> ${q.explain}`;
+            }
+
+            updateScoreDisplay();
+            feedbackBox.classList.remove('hidden');
+            document.getElementById('sent-next-btn').classList.remove('hidden');
+        }
+
+        function nextSentenceQuestion() {
+            currentSentIndex++;
+            if (currentSentIndex < sentencesData.length) {
+                loadSentenceQuestion();
+            } else {
+                showSentenceResult();
+            }
+        }
+
+        function showSentenceResult() {
+            document.getElementById('sent-card-content').classList.add('hidden');
+            document.getElementById('sent-result-view').classList.remove('hidden');
+            document.getElementById('sent-final-score').innerText = sentScore;
+
+            const comment = document.getElementById('sent-final-comment');
+            if (sentScore === 5) {
+                comment.innerText = "🌟 Tuyệt đối 5/5! Bạn đạt danh hiệu Bậc Thầy Phát Âm /f/ và /v/!";
+                triggerVictoryFireworks();
+                playSound('correct');
+            } else if (sentScore >= 3) {
+                comment.innerText = "👍 Kết quả rất tốt! Kỹ năng nghe phát âm của bạn rất xuất sắc.";
+                playSound('correct');
+            } else {
+                comment.innerText = "💡 Đừng nản lòng! Hãy bấm 'Làm lại' để luyện tập phát âm nhuần nhuyễn hơn nhé.";
+                playSound('incorrect');
+            }
+        }
+
+        function restartSentenceQuiz() {
+            currentSentIndex = 0;
+            sentScore = 0;
+            document.getElementById('sent-result-view').classList.add('hidden');
+            document.getElementById('sent-card-content').classList.remove('hidden');
+            loadSentenceQuestion();
+        }
+
+        function updateScoreDisplay() {
+            document.getElementById('score-display').innerText = score;
+        }
+
+        /* ================= INITIALIZATION ================= */
+        window.onload = function() {
+            initSnow();
+            initSortGame();
+        };
+    </script>
+</body>
+</html>
